@@ -10,6 +10,7 @@ module pe #(
     input  wire [DATA_W-1:0] char_b,   
 
     input  wire [DIST_W-1:0] d_left,     
+    input  wire [DIST_W-1:0] d_top_in,   
     input  wire [DIST_W-1:0] d_diag_in,  
 
     output reg  [DATA_W-1:0] char_a_out,  
@@ -19,9 +20,8 @@ module pe #(
 
     wire cost = (char_a_in != char_b) ? 1'b1 : 1'b0;
 
-    wire [DIST_W-1:0] d_top = d_diag_in + 1'd1; 
     wire [DIST_W-1:0] cand_left = d_left + 1'd1; 
-    wire [DIST_W-1:0] cand_top = d_top + 1'd1; 
+    wire [DIST_W-1:0] cand_top  = d_top_in + 1'd1; 
     wire [DIST_W-1:0] cand_diag = d_diag_in + {{(DIST_W-1){1'b0}}, cost};
 
     wire [DIST_W-1:0] min_lt = (cand_left < cand_top) ? cand_left : cand_top;
@@ -34,7 +34,7 @@ module pe #(
             char_a_out <= {DATA_W{1'b0}};
         end else begin
             d_out <= d_next;
-            d_diag_out <= d_left;   
+            d_diag_out <= d_top_in;   
             char_a_out <= char_a_in; 
         end
     end

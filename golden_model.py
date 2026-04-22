@@ -1,6 +1,5 @@
-
 def single_row_distance(char_a, string_b):
-    n = len(string_b)
+n = len(string_b)
 
 
 prev_row = list(range(n + 1))
@@ -24,13 +23,13 @@ print("Final Output:", curr_row[n])
 return curr_row[n]
 
 
+if __name__ == "__main__":
+    char_a = 'K'
+    string_b = "SITT"
 
-if __name__ == "__main__":   
-char_a = 'K'
-string_b = "SITT"
+    result = single_row_distance(char_a, string_b)
+    print("Expected Distance =", result)
 
 
-result = single_row_distance(char_a, string_b)
-print("Expected Distance =", result)
 
 

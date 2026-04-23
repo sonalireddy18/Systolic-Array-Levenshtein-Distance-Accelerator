@@ -1,119 +1,67 @@
-module controller #(
-    parameter N = 4,
-    parameter M = 6,
-    parameter DATA_W = 8,
-    parameter DIST_W = 8 
-)(
-    input  wire clk,
-    input  wire rst_n,
-    input  wire start,
-    input  wire [DATA_W*M-1:0] string_a,
-    input  wire [DATA_W*N-1:0] string_b,
+module controller (
+    input wire clk,
+    input wire rst,
+    input wire start,
+    input wire [2:0] test_sel, // New input to select test case
     output reg ready,
-    output reg done,
-    output reg [DIST_W-1:0] edit_distance_out,
-    
-    // Connections to edit_distance_top.v
-    output wire [DATA_W-1:0] char_a_in,
-    output reg  [DATA_W*N-1:0] string_b_out,
-    output reg  [DIST_W-1:0] d_in_initial,
-    output reg col_valid,
-    input  wire [DIST_W-1:0] result_in
+    output reg [7:0] current_char_a,
+    output reg [7:0] d_init_val,
+    output reg [3:0] char_index
 );
 
-    // FSM States using ASCII-compatible localparams
-    // These manage the sequence from initial idle to data feeding and result capture.
-    localparam S_IDLE = 2'b00,
-               S_FEED = 2'b01,
-               S_WAIT = 2'b10,
-               S_DONE = 2'b11;
-
+    parameter IDLE = 2'b00, RUN = 2'b01, FLUSH = 2'b10, DONE = 2'b11;
     reg [1:0] state;
-    reg [$clog2(M+1)-1:0] feed_cnt;
-    reg [DATA_W*M-1:0] shift_reg_a;
+    reg [3:0] cycle_count;
 
-    // The current character being processed is always at the bottom of the shift register.
-    // This allows the PE array to see the current character without complex multiplexing.
-    assign char_a_in = shift_reg_a[DATA_W-1:0];
-
-    always @(posedge clk or negedge rst_n) 
-    begin
-        if (!rst_n)
-            begin
-                // Initialize all registers to zero or safe default states upon reset.
-                // This prevents garbage values from entering the pipeline on startup.
-                state <= S_IDLE;
-                feed_cnt <= 0;
-                shift_reg_a <= 0;
-                string_b_out <= 0;
-                d_in_initial <= 0;
-                ready <= 1'b0;
-                done <= 1'b0;
-                col_valid <= 1'b0;
-                edit_distance_out <= 0;
-            end 
-        else 
-            begin
-                case (state)
-                    S_IDLE: 
-                    begin
-                        // Signal to the external system that the controller is ready for a new task.
-                        // If start is asserted, we latch the input strings into local registers.
-                        ready <= 1'b1;
-                        done <= 1'b0;
-                        if (start) 
-                        begin
-                            shift_reg_a <= string_a;
-                            string_b_out <= string_b;
-                            d_in_initial <= 8'd1; 
-                            feed_cnt <= 0;
-                            ready <= 1'b0;
-                            state <= S_FEED;
-                        end
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            state <= IDLE;
+            char_index <= 0;
+            cycle_count <= 0;
+            ready <= 0;
+        end else begin
+            case (state)
+                IDLE: begin
+                    if (start) state <= RUN;
+                    ready <= 0;
+                    char_index <= 0;
+                    cycle_count <= 0;
+                end
+                RUN: begin
+                    if (char_index == 3) state <= FLUSH;
+                    char_index <= char_index + 1;
+                end
+                FLUSH: begin
+                    if (cycle_count == 2) begin 
+                        state <= DONE;
+                        ready <= 1;
+                    end else begin
+                        cycle_count <= cycle_count + 1;
+                        char_index <= char_index + 1;
                     end
+                end
+                DONE: begin
+                    ready <= 1;
+                    if (!start) state <= IDLE; // Wait for start to go low to reset
+                end
+            endcase
+        end
+    end
 
-                    S_FEED: 
-                    begin
-                        // Assert col_valid to tell the PE array that the current character is valid.
-                        // We transition to S_WAIT on the final character cycle (M-1).
-                        col_valid <= 1'b1;
-                        if (feed_cnt == M - 1) 
-                        begin
-                            state <= S_WAIT;
-                            feed_cnt <= 0;
-                        end 
-                        else 
-                        begin
-                            // Increment the character counter and shift the next byte into position.
-                            // d_in_initial increments to provide the vertical cost for the matrix.
-                            feed_cnt <= feed_cnt + 1'b1;
-                            d_in_initial <= d_in_initial + 1'b1;
-                            shift_reg_a <= shift_reg_a >> DATA_W;
-                        end
-                    end
-
-                    S_WAIT: 
-                    begin
-                        // De-assert col_valid as all characters from string A have been presented.
-                        // The FSM now waits for the pipeline to drain and signal a valid result.
-                        col_valid <= 1'b0;
-                        edit_distance_out <= result_in;
-                        state <= S_DONE;
-                    end
-
-                    S_DONE: 
-                    begin
-                        // Assert the done signal for one clock cycle to notify the user.
-                        // The FSM then returns to IDLE to wait for the next comparison request.
-                        done <= 1'b1;
-                        state <= S_IDLE;
-                    end
-
-                    default: 
-                    begin
-                        state <= S_IDLE;
-                    end
-                endcase
-            end
+    always @(*) begin
+        if (char_index < 4) begin
+            d_init_val = char_index + 1;
+            case(test_sel)
+                3'd0: case(char_index) 0: current_char_a = "K"; 1: current_char_a = "I"; 2: current_char_a = "T"; 3: current_char_a = "T"; default: current_char_a = 0; endcase
+                3'd1: case(char_index) 0: current_char_a = "B"; 1: current_char_a = "O"; 2: current_char_a = "O"; 3: current_char_a = "K"; default: current_char_a = 0; endcase
+                3'd2: case(char_index) 0: current_char_a = "F"; 1: current_char_a = "A"; 2: current_char_a = "S"; 3: current_char_a = "T"; default: current_char_a = 0; endcase
+                3'd3: case(char_index) 0: current_char_a = "C"; 1: current_char_a = "H"; 2: current_char_a = "A"; 3: current_char_a = "T"; default: current_char_a = 0; endcase
+                3'd4: case(char_index) 0: current_char_a = "C"; 1: current_char_a = "O"; 2: current_char_a = "O"; 3: current_char_a = "L"; default: current_char_a = 0; endcase
+                default: current_char_a = 0;
+            endcase
+        end else begin
+            current_char_a = 8'h00;
+            d_init_val = 8'hFF;
+        end
     end
 endmodule

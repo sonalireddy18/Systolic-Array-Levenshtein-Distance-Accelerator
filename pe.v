@@ -29,13 +29,13 @@ module pe #(parameter ID = 0) (
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            d_top      <= ID + 1; // Correct boundary: dp[0][j]
-            d_out      <= ID + 1;
+            d_top <= ID + 1; // Correct boundary: dp[0][j]
+            d_out <= ID + 1;
             d_diag_out <= ID;     // Correct boundary: dp[0][j-1]
             char_a_out <= 8'd0;
         end else begin
-            d_top      <= min_val;
-            d_out      <= min_val;
+            d_top <= min_val;
+            d_out <= min_val;
             d_diag_out <= d_top;  // Pass top to next PE as diagonal
             char_a_out <= char_a_in;
         end

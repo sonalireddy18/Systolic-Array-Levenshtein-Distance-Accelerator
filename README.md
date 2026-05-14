@@ -31,11 +31,6 @@ where:
 - `cost = 0` if characters match
 - `cost = 1` otherwise
 
-and:
-
-- `cost = 0` if characters match
-- `cost = 1` otherwise
-
 ---
 
 ## Architecture

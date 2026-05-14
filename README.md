@@ -57,8 +57,8 @@ char_a --> [PE0] --> [PE1] --> [PE2] --> [PE3]
 * **Systolic Parallelism**  
   Multiple DP-cell computations occur simultaneously through pipelined data propagation.
 
-* **Pipeline Registers**  
-  Registers inside Processing Elements reduce long combinational paths and improve timing performance for FPGA/ASIC implementations.
+* **Pipeline Registers**
+  Registers inside Processing Elements help improve timing performance and enable efficient pipelined execution.
 
 * **FSM-Based Controller**  
   A dedicated controller streams characters, initializes DP boundary conditions, and flushes the pipeline to obtain the final result.

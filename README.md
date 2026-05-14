@@ -132,6 +132,6 @@ All tests passed successfully with complete logic parity.
 
 ---
 
-## Academic Context
+*This project was developed as a final theory project for the **Computer Organization and Architecture (CS2007)** course at the **Indian Institute of Information Technology Design and Manufacturing (IIITDM), Kancheepuram**.*
 
-This project was developed as a final theory project for the **Computer Organization and Architecture (CS2007)** course at the **Indian Institute of Information Technology Design and Manufacturing (IIITDM), Kancheepuram**.
+

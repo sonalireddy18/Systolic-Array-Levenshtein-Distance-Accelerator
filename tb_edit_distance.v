@@ -13,7 +13,6 @@
 // ==========================================================
 
 `timescale 1ns/1ps
-
 module tb_edit_distance();
 
     // ======================================================
@@ -46,9 +45,7 @@ module tb_edit_distance();
 
     // Initial DP boundary value
     wire [7:0] d_init;
-
-
-
+    
     // ======================================================
     // DUT : Edit Distance Accelerator
     // ======================================================
@@ -66,9 +63,7 @@ module tb_edit_distance();
 
         .final_distance(final_dist)
     );
-
-
-
+    
     // ======================================================
     // Controller Instance
     // ------------------------------------------------------
@@ -76,22 +71,14 @@ module tb_edit_distance();
     // ======================================================
 
     controller ctrl (
-
         .clk(clk),
         .rst(rst),
-
         .start(start),
-
         .test_sel(test_sel),
-
         .ready(ready),
-
         .current_char_a(char_a),
-
         .d_init_val(d_init)
     );
-
-
 
     // ======================================================
     // Clock Generation
@@ -100,9 +87,6 @@ module tb_edit_distance();
     // ======================================================
 
     always #5 clk = ~clk;
-
-
-
     // ======================================================
     // Test Data Storage
     // ======================================================
@@ -114,13 +98,9 @@ module tb_edit_distance();
 
     // String B test cases
     reg [31:0] test_strings_b [0:4];
-
-
-
     // ======================================================
     // Test Sequence
     // ======================================================
-
     initial begin
 
         // --------------------------------------------------
@@ -131,7 +111,6 @@ module tb_edit_distance();
         // Expected Distance = 1
         test_strings_a[0] = "KITT";
         test_strings_b[0] = "SITT";
-
         // Test 2:
         // Expected Distance = 2
         test_strings_a[1] = "BOOK";
@@ -141,18 +120,14 @@ module tb_edit_distance();
         // Expected Distance = 0
         test_strings_a[2] = "FAST";
         test_strings_b[2] = "FAST";
-
         // Test 4:
         // Expected Distance = 2
         test_strings_a[3] = "CHAT";
         test_strings_b[3] = "CATS";
-
         // Test 5:
         // Expected Distance = 1
         test_strings_a[4] = "COOL";
         test_strings_b[4] = "POOL";
-
-
 
         // --------------------------------------------------
         // Initial Signal Values
@@ -162,25 +137,16 @@ module tb_edit_distance();
         rst      = 1;
         start    = 0;
         test_sel = 0;
-
-
-
         // --------------------------------------------------
         // Apply Reset
         // --------------------------------------------------
 
         #20 rst = 0;
-
-
-
         // ==================================================
         // Begin Test Execution
         // ==================================================
 
         $display("\n--- HARDWARE ACCELERATOR TEST SUITE ---");
-
-
-
         // --------------------------------------------------
         // Run all test cases
         // --------------------------------------------------
@@ -189,20 +155,13 @@ module tb_edit_distance();
 
             // Select current test case
             test_sel = i;
-
             // Load String B into DUT
             string_b_in = test_strings_b[i];
-
-
-
             // ----------------------------------------------
             // Start accelerator
             // ----------------------------------------------
 
             #10 start = 1;
-
-
-
             // ----------------------------------------------
             // Wait until computation completes
             // ----------------------------------------------
@@ -210,28 +169,17 @@ module tb_edit_distance();
             wait(ready == 1);
 
             #2;
-
-
-
             // ----------------------------------------------
             // Display Results
             // ----------------------------------------------
 
             $display(
-
                 "Test Case %0d: String A: %s | String B: %s | Distance: %0d",
-
                 i + 1,
-
                 test_strings_a[i],
-
                 test_strings_b[i],
-
                 final_dist
             );
-
-
-
             // ----------------------------------------------
             // Reset controller for next test
             // ----------------------------------------------
@@ -241,16 +189,10 @@ module tb_edit_distance();
             // Small delay between tests
             #20;
         end
-
-
-
         // ==================================================
         // End Simulation
         // ==================================================
-
         $display("---------------------------------------\n");
-
         $finish;
     end
-
 endmodule

@@ -55,15 +55,6 @@ The hardware accelerator was tested against the Python **Golden Model** using a 
 
 > **Note:** Simulations were performed using Icarus Verilog and timing was verified to be consistent with the $O(N+M)$ systolic array architecture.
 
-
-## 👥 Team & Roles
-| Member | Role | Responsibilities |
-| :--- | :--- | :--- |
-| **Harini** | Architect & PE Designer | Logic design for the core PE and cost calculation. |
-| **Sonali** | System Integrator | PE array chaining and structural modeling. |
-| **Vennela** | Controller & I/O | FSM implementation for timing and data alignment. |
-| **Priyanka** | Verification Lead | Multi-case testbench and Python Golden Model verification. |  
-
 ## Academic Context
 This project was developed as a final theory project for the **Computer Organization and Architecture (CS2007)** course at **Indian Institute of Information Technology Design and Manufacturing (IIITDM), Kancheepuram**.
 

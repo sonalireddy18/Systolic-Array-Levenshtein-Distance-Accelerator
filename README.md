@@ -18,15 +18,18 @@ By exploiting **spatial parallelism** through a systolic array architecture, the
 
 The accelerator implements the standard Dynamic Programming recurrence relation for Edit Distance computation:
 
-\[
-d_{i,j} = \min(d_{i-1,j} + 1,\ d_{i,j-1} + 1,\ d_{i-1,j-1} + \text{cost})
-\]
+```text
+dp[i][j] = min(
+                dp[i-1][j] + 1,        // deletion
+                dp[i][j-1] + 1,        // insertion
+                dp[i-1][j-1] + cost    // substitution
+              )
+```
 
 where:
 
-- **Insertion**  → \(d_{i,j-1} + 1\)
-- **Deletion** → \(d_{i-1,j} + 1\)
-- **Substitution** → \(d_{i-1,j-1} + \text{cost}\)
+- `cost = 0` if characters match
+- `cost = 1` otherwise
 
 and:
 
